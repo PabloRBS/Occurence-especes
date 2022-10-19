@@ -113,13 +113,21 @@ sh5 <- sf::st_read("la5x5fr.shp")
     
 ```
 
+**objets pour enregistrer les résultats du script et listes pour le boucle**
+
 
 ```{r include = FALSE}
 
-list.esp <- "67179"
-esp <- "67179"
+# liste complete d'especes
 
-# objets pour enregistrer les résultats du script
+  list.esp.1 <- unique(as.integer(tpb5km.sp.cf$cd_ref))           
+  list.esp.2 <- sort.int(list.esp.1)
+  list.esp <- as.character(list.esp.2) 
+
+# liste juste pour une espece (pour tester)
+
+# list.esp <- "67179"
+# esp <- "67179"
 
 # liste de tables de chaque espece
 
