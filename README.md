@@ -3,14 +3,11 @@
 ---
 Changement des cartes d'occurrence d''espèces de mailles de 10x10 km à 5x5 km : étude de cas en France.
 <br />
-Author: "Collaboration CTE / PatriNat, Muséum National d'Histoire Naturelle"
+Analyste CTE/BD: Pablo Bolaños, travail en collaboration avec Patrinat, Muséum National d'Histoire Naturelle
 <br />
 date: '2022-10-13'
 ---
 
-## Travail en colaboration CTE / BD - Patrinat : 
-
-Analyste ETC / BD : Pablo Bolaños
 <br />
 
 ## Contexte 
