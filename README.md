@@ -1,7 +1,7 @@
 # Occurrence-especes
 
 ---
-title: "'Changement des cartes d'occurrence d''espèces de mailles de 10x10 km à 5x5 km : étude de cas en France"
+title: "Changement des cartes d'occurrence d''espèces de mailles de 10x10 km à 5x5 km : étude de cas en France"
 author: "Collaboration CTE / PatriNat, Muséum National d'Histoire Naturelle"
 date: '2022-10-13'
 output:
@@ -10,9 +10,6 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 ## Travail en colaboration : 
 
 Analyste ETC / BD : Pablo Bolaños
