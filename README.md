@@ -17,8 +17,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Analyste ETC / BD : Pablo Bolaños
 <br />
-Responsables Patrinat : Isabelle Witte, Florian Barnier
-
 
 ```{r include = FALSE}
 library(data.table)
@@ -81,49 +79,38 @@ Classe recouvrement 1 et 2 conservées (80 – 100%)
 Données de synthèse retirées
 
 
-**Example pour l'espece 67179 *Barbus meridionalis*** 
+**DATA** 
 
 
 ```{r include = FALSE}
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/scripts R/Markdown")
 
-#setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Graphics from R")
-load("tpb5km.sp.cf.RData")
-load("tpb10km.sp.cf.RData")
+# données de rapportage pour mailles de 5 et 10 km
 
-# list of species
-load("listref.p.RData")
+tpb5km.sp.cf
+tpb10km.sp.cf
 
-# list of connaisance
+# liste des especes avec l'information pour les groups
 
-load("listconn.RData")
+listref.p
 
-## MAILLES
+# liste avec l'information du connaisance
 
-# Import France/LAEA grids 10km and 5km 
+listconn
 
-#setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/shape files/ETRS89_LAEA_10K_FR")
+# mailles de France de 10 et 5 km
+
 sh10 <- sf::st_read("Grid_ETRS89_LAEA_10K_FR.shp")
 
-# Couche France/LAEA 5km
-#setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/shape files/mailles")
 sh5 <- sf::st_read("la5x5fr.shp")
 
- #******************************************************
-#* raster maille France sans aire marine
-#******************************************************
-
-   #import rasters mv
+# mailles de France de superficie terrestre, en raster pour le calcul de voisinage complet
   
-  #setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/rasters from R/tiff")
-   
   raster10_tot.1 <- readGDAL("salida10tif.tif")
   raster5_tot.1 <- readGDAL("salida5tif.tif")
 
   raster10_tot.2 <- raster(raster10_tot.1)
   raster5_tot.2 <- raster(raster5_tot.1)
-  
-  
+    
 ```
 
 
@@ -132,39 +119,36 @@ sh5 <- sf::st_read("la5x5fr.shp")
 list.esp <- "67179"
 esp <- "67179"
 
-# objects to store data
-#_______________________________________________________________________________
+# objets pour enregistrer les résultats du script
 
-# list of tables by species
+# liste de tables de chaque espece
+
 tpb10km.spl <- split(tpb10km.sp.cf, f = tpb10km.sp.cf$cd_ref)   ### 
 tpb5km.spl <- split(tpb5km.sp.cf, f = tpb5km.sp.cf$cd_ref)      ### 
 
-# lists to store raw maps and K index
+# liste pour les cartes de chaque espece
 map_raw <- list()
+
+# liste pour les resultats de l'indice K de Ripley
 
 EspK10_plot <- list()
 EspK5_plot <- list()
 
-# list of dataframes to store calculations
+# liste de dataframes pour enregistrer les calculs des metriques
 
 values   <- data.frame(cd_ref = list.esp)
-
 values.spl5 <- split(values, f = values$cd_ref)       
-  
 values.spl10 <- split(values, f = values$cd_ref) 
-
 values.spl <- list()
 
-
-# lists to store maps
+# listes pour garder les cartes
 
 map10 <- list()
 map5 <- list()
 
-# list to store graphs
+# listes pour garder les graphiques
 
 graph <- list()
-
 
 ```
 
