@@ -1,38 +1,17 @@
 # Occurrence-especes
 
 ---
-title: "Changement des cartes d'occurrence d''espèces de mailles de 10x10 km à 5x5 km : étude de cas en France"
+Changement des cartes d'occurrence d''espèces de mailles de 10x10 km à 5x5 km : étude de cas en France.
+<br />
 author: "Collaboration CTE / PatriNat, Muséum National d'Histoire Naturelle"
+<br />
 date: '2022-10-13'
-output:
-  pdf_document: default
-  word_document: default
-  html_document: default
 ---
 
 ## Travail en colaboration CTE / BD - Patrinat : 
 
 Analyste ETC / BD : Pablo Bolaños
 <br />
-
-```{r include = FALSE}
-library(data.table)
-library(sf)
-library(readxl)
-library(dplyr)
-library(rgeos)
-library(tidyr)
-library(plyr)
-library(ggplot2)
-library(spatstat) # to count fragments
-library(vegan) # diversity
-library(raster)
-library(rgdal)
-library(terra) # focal function
-library(gridExtra)  # put graphics in a grid
-library("grid")
-library("ggplotify") # convert plots to ggplot objects
-```
 
 ## Contexte 
 
@@ -109,6 +88,26 @@ sh5 <- sf::st_read("la5x5fr.shp")
   raster5_tot.2 <- raster(raster5_tot.1)
     
 ```
+
+```{r include = FALSE}
+library(data.table)
+library(sf)
+library(readxl)
+library(dplyr)
+library(rgeos)
+library(tidyr)
+library(plyr)
+library(ggplot2)
+library(spatstat) # to count fragments
+library(vegan) # diversity
+library(raster)
+library(rgdal)
+library(terra) # focal function
+library(gridExtra)  # put graphics in a grid
+library("grid")
+library("ggplotify") # convert plots to ggplot objects
+```
+
 
 **objets pour enregistrer les résultats du script et listes pour le boucle**
 
