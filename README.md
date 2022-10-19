@@ -3,7 +3,7 @@
 ---
 Changement des cartes d'occurrence d''espèces de mailles de 10x10 km à 5x5 km : étude de cas en France.
 <br />
-author: "Collaboration CTE / PatriNat, Muséum National d'Histoire Naturelle"
+Author: "Collaboration CTE / PatriNat, Muséum National d'Histoire Naturelle"
 <br />
 date: '2022-10-13'
 ---
