@@ -59,7 +59,7 @@ Données de synthèse retirées
 
 **Résultats des métriques pour chaque maille**
 
-![alt text](https://github.com/PabloRBS/Occurrence-especes/blob/main/Alectoris_graeca_2971_resultats_mailles.png?raw=true)
+![alt text](https://github.com/PabloRBS/Occurrence-especes/blob/main/Alectoris_graeca_2971_resultats_mailles2.png?raw=true)
 
 
 
