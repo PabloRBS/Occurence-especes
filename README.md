@@ -16,7 +16,7 @@ Dans la perspective de la nécessité de fournir des cartes de distribution en m
 
 Ce travail est une collaboration de deux mois durant l'année 2022, entre le "Centre Thématique Européen sur la Diversité Biologique (CTE/BD) et le Patrinat, MNHN.
 
-Les résultats ci-dessous est un exemple pour l’espèce 67179 "Barbus meridionalis". Le script complet effectue l’analyse pour toutes les espèces (158), selon les critères de sélection. 
+Le script complet effectue l’analyse pour toutes les espèces (299), selon les critères de sélection. 
 
 
 **Questions**
@@ -52,6 +52,14 @@ Classe recouvrement 1 et 2 conservées (80 – 100%)
 Données de synthèse retirées
 
 
+## Exemple de résultats de l'analyse
+
+
+![alt text](https://github.com/PabloRBS/Occurrence-especes/blob/main/occurrence_fr1.png?raw=true)
+
+
+## Script et explication de la méthodologie
+
 **DATA** 
 
 
@@ -86,6 +94,8 @@ sh5 <- sf::st_read("la5x5fr.shp")
     
 ```
 
+**Packages nécessaires**
+
 ```{r include = FALSE}
 library(data.table)
 library(sf)
@@ -106,7 +116,7 @@ library("ggplotify") # convert plots to ggplot objects
 ```
 
 
-**objets pour enregistrer les résultats du script et listes pour le boucle**
+**Objets pour enregistrer les résultats du script et listes pour le boucle**
 
 
 ```{r include = FALSE}
