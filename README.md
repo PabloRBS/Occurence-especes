@@ -55,7 +55,7 @@ Données de synthèse retirées
 ## Exemple de résultats de l'analyse
 
 
-![alt text](https://github.com/PabloRBS/Occurrence-especes/blob/main/occurrence_fr1.png?raw=true)
+![alt text](https://github.com/PabloRBS/Occurrence-especes/blob/main/occurrence_fr2.png?raw=true)
 
 
 ## Script et explication de la méthodologie
