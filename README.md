@@ -64,7 +64,7 @@ Données de synthèse retirées
 
 
 
-## Script et explication de la méthodologie
+## Script et méthodologie
 
 **DATA** 
 
