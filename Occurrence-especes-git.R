@@ -1,16 +1,9 @@
 
-##Lancer un package: 
+# Packages 
+
 library(data.table)
 library(sf)
 library(readxl)
-#library(WriteXLS)
-#library(RPostgres)
-#library(ETLUtils)
-
-# extra packages 
-
-#library(tidyverse)
-
 library(dplyr)
 library(rgeos)
 library(tidyr)
@@ -20,32 +13,28 @@ library(spatstat) # to count fragments
 library(vegan) # diversity
 library(raster)
 library(rgdal)
-#library(viridis) # color palette
-#library(RColorBrewer)
 library(terra) # focal function
-#library(gridGraphics) # store graphics in objects
-
 library(gridExtra)  # put graphics in a grid
-
 library("grid")
 library("ggplotify") # convert plots to ggplot objects
- 
 
 #*******************************************************************************
 #*******************************************************************************
 ################################################################################
-#
-# COMPLETE DATA
-#
+# DATA EDITION FROM DATABASE EXPORT
 ################################################################################
 
-# IMPORT SPECIES LIST FOR TEST V3
 
-#from laptop
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Data exports")
+setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Data mailles")
 
-tpb10km.v4 <- read.csv("tpb_10km_v3_202209021111.csv") 
-tpb5km.v4  <- read.csv("tpb_5km_v3_202209021126.csv")
+
+# this is the original data from the database
+
+# [temp_doe].[tpb_5km_v3]
+# [temp_doe].[tpb_10km_v3]
+
+tpb10km.v4 <- read.csv("./Original data/tpb_10km_v3_202211301400.csv") 
+tpb5km.v4  <- read.csv("./Original data/tpb_5km_v3_202211301427.csv")
 
 # select useful columns
 
@@ -53,197 +42,183 @@ tp10km.v4  <- subset(tpb10km.v4, select =c ("id_observation","id_evenement","id_
                                  "supericie_x","superficie_recouvrement","classe_recouvrement","id_type_donnees",        
                                  "cd_nom","cd_ref","cd_sig","date_debut",             
                                  "regne","phylum","classe","ordre",                  
-                                "famille","group2_inpn"))
+                                "famille","group2_inpn","iscontinental","ismarine"))
 
- tpb5km.v4  <- subset(tpb5km.v4, select =c ("id_observation","id_evenement","id_maille_5k","supericie",              
+tpb5km.v4  <- subset(tpb5km.v4, select =c ("id_observation","id_evenement","id_maille_5k","supericie",              
                                  "supericie_x","superficie_recouvrement","classe_recouvrement","id_type_donnees",        
                                  "cd_nom","cd_ref","cd_sig","date_debut",             
                                  "regne","phylum","classe","ordre",                  
-                                 "famille","group2_inpn"))
+                                 "famille","group2_inpn","iscontinental","ismarine"))
 
 #### CHANGE NAMES 
 
 colnames(tpb10km.v4) <- c("id_observation","id_evenement","id_maille","supericie","supericie_x",            
                        "superficie_recouvrement","classe_recouvrement","id_type_donnees","cd_nom","cd_ref",                 
                        "cd_sig","date_debut","regne","phylum","classe",                 
-                       "ordre","famille","group2_inpn")
+                       "ordre","famille","group2_inpn","iscontinental","ismarine")
 
 colnames(tpb5km.v4)  <- c("id_observation","id_evenement","id_maille","supericie","supericie_x",            
                        "superficie_recouvrement","classe_recouvrement","id_type_donnees","cd_nom","cd_ref",                 
                        "cd_sig","date_debut","regne","phylum","classe",                 
-                       "ordre","famille","group2_inpn") 
-
-
-### Filtre classe recouvrement = 1 
-
-tpb10km <- filter(tpb10km.v4, classe_recouvrement == 1 | classe_recouvrement == 2)  ### before it was 1 (100 %), 2 is 80 - 99.99 %
- 
-tpb5km <- filter(tpb5km.v4, classe_recouvrement == 1 | classe_recouvrement == 2)  ### before it was 1 (100 %), 2 is 80 - 99.99 %
-
+                       "ordre","famille","group2_inpn","iscontinental","ismarine")
 
 ##############################################################################
-# Import list of species
+# list of species
 ##############################################################################
-
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/data")
 
 ### import species reference list
-ListRef  <- read.csv("ListRef_CDUE_2019.csv", sep = ";")
-
+ListRef  <- read.csv("./Original data/ListRef_CDUE_2019.csv", sep = ";")
 ### filter ListRef EVAL = Present
 listref.p <- filter (ListRef, EVAL == "Present")
-
 #### filter only the species of reference list
-
 # changing names to match the database
-
-colnames(listref.p) <- c("Code_N2000","Prio","Nom.cit?.dans.la.Directive","cd_nom","Nom_valide","Nom_vern",
+colnames(listref.p) <- c("Code_N2000","Prio","Nom.cité.dans.la.Directive","cd_nom","Nom_valide","Nom_vern",
                          "ALP","ATL","CONT","MED","Nom_cite","A1","CDUE_2019","cd_ref","LB_NOM_VALIDE",
                          "GROUP2_INPN","EVAL")
-
 # save list
-
-#setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Graphics from R")
 #save(listref.p, file = "listref.p.RData" )
 
-tpb10km.sp <- right_join (tpb10km, listref.p, by = "cd_ref")  # right_join in order to keep just the species present
-
-# make the same for 5km
-
-tpb5km.sp <- right_join (tpb5km, listref.p, by = "cd_ref")  # right_join in order to keep just the species present
-
 ################################################################################
-# IMPORT list of species with knowledge indicator
+# list of species with knowledge indicator
 ################################################################################
 
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/data")
-
-listconn  <- read.csv("Liste_Esp_Grp_Test.csv", sep = ";")
-
+listconn  <- read.csv(".Original data/Liste_Esp_Grp_Test.csv", sep = ";")
 colnames(listconn) <- c("cd_ref","cd_nom","Code_N2000","CDUE_2019"             
                        ,"Nom_cite_Directive","Nom_vern","ALP","ATL"                        
                        ,"CONT","MED","GROUP2_INPN","Regroupement"               
                        ,"Indicateurs","Expert","Commentaire")
 
-# save list connues
-
-#setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Graphics from R")
 #save(listconn, file = "listconn.RData")
 
-
 ## join data
-
-tpb10km.sp.c <- right_join (tpb10km.sp, listconn, by = "cd_ref")  # right_join in order to keep just the species present
-
-# make the same for 5km
-
-tpb5km.sp.c <- right_join (tpb5km.sp, listconn, by = "cd_ref")  # right_join in order to keep just the species present
-
-
-# FILTER NA VALUES
-
+tpb10km.sp.c <- left_join (tpb10km, listconn, by = "cd_ref")  
+tpb5km.sp.c <- left_join (tpb5km, listconn, by = "cd_ref")   
+# filter NA values
 tpb10km.sp.cf <-  filter(tpb10km.sp.c, !is.na(id_observation))
-
 tpb5km.sp.cf <-  filter(tpb5km.sp.c, !is.na(id_observation))
 
-# filter blank values (only for 10km)
+## save prepared data
 
-tpb10km.sp.cf <-  filter(tpb10km.sp.cf, cd_sig != "")
+#save(tpb5km.sp.cf, file = "tpb5km.sp.cf2.RData")
+#save(tpb10km.sp.cf, file = "tpb10km.sp.cf2.RData")
 
-#tpb5km.sp.cf2 <-  filter(tpb5km.sp.cf1, cd_sig != "")
-
-## save data objects
-#setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Graphics from R")
-#save(tpb5km.sp.cf, file = "tpb5km.sp.cf.RData")
-#save(tpb10km.sp.cf, file = "tpb10km.sp.cf.RData")
 
 #******************************************************
 #************************START*************************
 #******************************************************
+# START FROM HERE, LOADING THE DATA ALREADY PREPARED
 
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Graphics from R")
-load("tpb5km.sp.cf.RData")
-load("tpb10km.sp.cf.RData")
+
+# Data from database
+setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Data mailles")
+
+load("tpb5km.sp.cf2.RData")
+load("tpb10km.sp.cf2.RData")
 
 # list of species
 load("listref.p.RData")
-
 # list of connaisance
-
 load("listconn.RData")
 
-## MAILLES
-
+# MAILLES
 # Import France/LAEA grids 10km and 5km 
-
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/shape files/ETRS89_LAEA_10K_FR")
 sh10 <- st_read("Grid_ETRS89_LAEA_10K_FR.shp")
-
 # Couche France/LAEA 5km
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/shape files/mailles")
 sh5 <- st_read("la5x5fr.shp")
+# couche France departements
+fr <- st_read("copie_loc_depts.shp")
+fr_simpl <- st_simplify(fr, preserveTopology = FALSE, dTolerance = 1000) # to make graph faster
 
- #******************************************************
+#******************************************************
 #* raster maille France sans aire marine
 #******************************************************
 
-   #import rasters mv
-  
-  setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/rasters from R/tiff")
-   
-  raster10_tot.1 <- readGDAL("salida10tif.tif")
-  raster5_tot.1 <- readGDAL("salida5tif.tif")
+raster10_tot.1 <- readGDAL("salida10tif.tif")
+raster5_tot.1 <- readGDAL("salida5tif.tif")
+raster10_fr <- raster(raster10_tot.1)
+raster5_fr <- raster(raster5_tot.1)
 
-  raster10_tot.2 <- raster(raster10_tot.1)
-  raster5_tot.2 <- raster(raster5_tot.1)
-   
-#______________________________________________________________________________
-#*******************************************************************************
-################################################################################
-# list of species
-################################################################################
-#_______________________________________________________________________________
+#******************************************************
+#* raster maille France AVEC aire marine
+#******************************************************
+
+raster10_frmar_1 <- readGDAL("raster10_tot.tif")  # continental et marine
+raster5_frmar_1 <- readGDAL("raster5_tot.tif")
+raster10_frmar <- raster(raster10_frmar_1)
+raster5_frmar <- raster(raster5_frmar_1)
+
+#******************************************************
+#* raster maille France JUSTE marine
+#******************************************************
+
+raster10_tot.cr <- crop(raster10_fr, extent(raster10_frmar))
+raster5_tot.cr <- crop(raster5_fr, extent(raster5_frmar)) 
+
+  # reproject to reference data crs
+raster10_fr.pj <- projectRaster(raster10_tot.cr,  crs = crs(sh10))
+raster5_fr.pj <- projectRaster(raster5_tot.cr, crs = crs(sh5))
+  
+  # resample to reference data extent
+raster10_fr.ext <- resample (raster10_fr.pj, raster10_frmar, method = "bilinear") ## 
+raster5_fr.ext <- resample (raster5_fr.pj, raster5_frmar, method = "bilinear")
+
+raster10_mar <- mask(raster10_frmar, raster10_fr.ext, inverse = TRUE)  #  OK
+raster5_mar <- mask(raster5_frmar, raster5_fr.ext, inverse = TRUE)  # OK
+
+#*******************************************************
+#* preparation des donnees pour la question mailles 10x10 vides
+#*******************************************************  
+t10.sb   <- subset(tpb10km.sp.cf, select = c("id_observation","id_evenement","id_maille","cd_ref","Regroupement"))
+t5.sb   <- subset(tpb5km.sp.cf, select = c("id_observation","id_evenement","id_maille","cd_ref","Regroupement"))
+colnames(t10.sb) <- c("id_observation","id_evenement","id_maille_10","cd_ref","Regroupement")
+colnames(t5.sb) <- c("id_observation","id_evenement","id_maille_5","cd_ref","Regroupement")
+t10.sb$occurrence_10 <- "True"
+t5.sb$occurrence_5 <- "True"
+t.sb <- full_join(t10.sb, t5.sb) # , by = "id_evenement")
+# 1. table with all the combinations of 5 and 10 km
+t.sb <- subset(t.sb, select = c("id_maille_10","id_maille_5","occurrence_10","occurrence_5")) #before t.sb.1
+t.sb <- unique(t.sb)                                                                        #before t.sb.2
+comb_maille_10_5 <- arrange(t.sb, id_maille_10, id_maille_5)
+# 1.2 prepare species tables in separated lists
+t105.sb.1 <- left_join(t10.sb, t5.sb,  by = c("id_evenement","cd_ref"))
+t105.sb.1 <- subset(t105.sb.1, select = c("id_maille_10","id_maille_5","cd_ref","Regroupement.x","occurrence_10","occurrence_5"))
+
+# lists
+esp_maille <- split(t105.sb.1, f = t105.sb.1$cd_ref)   
+#list.esp <- as.character(names(esp_maille))  # check if the lists are the same
+
+# objects to store data
+
+comb_esp <- list()
+maille_10_vides <- list()
+esp_maille_ref <- list()
+
+# list of species for the loop
 
 ## complete list  
-  list.esp <- unique(as.integer(tpb5km.sp.cf$cd_ref))           
-  list.esp <- as.character(list.esp)    # complete list (307 species)   
+  list.esp.1 <- unique(as.integer(tpb5km.sp.cf$cd_ref))           
+  list.esp.2 <- sort.int(list.esp.1)
+  list.esp <- as.character(list.esp.2) 
 
-## test with some species
+# if you only needs to test with some species
+#list.esp <- c("2836","2840")
+#list.esp  <- "608254"
   
-#  list.esp <- c("89567","84699","717782","82376","86380","132159","717179","103008","3885","123672")
-
-#  list.esp <- "89567"
-  
-################################################################################
-################################################################################
-# objects to store data
-#_______________________________________________________________________________
+# OBJECTS TO STORE DATA
 
 # list of tables by species
-tpb10km.spl <- split(tpb10km.sp.cf, f = tpb10km.sp.cf$cd_ref)   ### 
-tpb5km.spl <- split(tpb5km.sp.cf, f = tpb5km.sp.cf$cd_ref)      ### 
+tpb10km.spl <- split(tpb10km.sp.cf, f = tpb10km.sp.cf$cd_ref)   
+tpb5km.spl <- split(tpb5km.sp.cf, f = tpb5km.sp.cf$cd_ref)      
 
 # lists to store raw maps and K index
-map_raw <- list()
-
-EspK10_plot <- list()
-EspK5_plot <- list()
+#map_raw <- list()
 
 # list of dataframes to store calculations
 
 values   <- data.frame(cd_ref = list.esp)
-
 values.spl5 <- split(values, f = values$cd_ref)       
-  
 values.spl10 <- split(values, f = values$cd_ref) 
-
 values.spl <- list()
-
-
-# lists to store maps
-
-map10 <- list()
-map5 <- list()
 
 # list to store graphs
 
@@ -256,8 +231,8 @@ for(esp in list.esp){
   ### ************************************************************************************
   ### choosing the shape for each species
   ### ************************************************************************************
-    shpEsp10 <-sh10[sh10$CD_SIG %in% tpb10km.spl[[esp]]$id_maille,] 
-    shpEsp5 <-sh5[sh5$CD_SIG %in% tpb5km.spl[[esp]]$id_maille,] 
+  shpEsp10 <-sh10[sh10$CD_SIG %in% tpb10km.spl[[esp]]$id_maille,] 
+  shpEsp5 <-sh5[sh5$CD_SIG %in% tpb5km.spl[[esp]]$id_maille,] 
   ### ******************************************************************
   ### intersection area
   ### ******************************************************************
@@ -309,13 +284,32 @@ for(esp in list.esp){
   shpEsp10_g <- st_geometry(shpEsp10)
   shpEsp5_g <- st_geometry(shpEsp5)
 
+exttot <- extent(shpEsp10)
 
-rawmap  <- ggplot() +
-     geom_sf(data = shpEsp10_g, color="#1D928F", fill = "#3A9E98", size = 0.05) +
-     geom_sf(data = shpEsp5_g, color="#5D0C0D", fill = alpha("darksalmon",0.8), size = 0.05) +
+rawmap1  <-
+ ggplot() +
+  geom_sf(data = fr_simpl) +   
+  geom_sf(data = shpEsp10_g, color= alpha("#1D928F", 0.5), fill = alpha("#3A9E98", 0.8), size = 0.05) +
+     geom_sf(data = shpEsp5_g, color= alpha("#b5745e", 0.5), fill = alpha("darksalmon",0.6), size = 0.05) +
+     geom_rect(aes(xmin = exttot[1], xmax = exttot[2], ymin = exttot[3], ymax = exttot[4]),
+               color = "red", fill = NA) +
      xlab("Longitude") + ylab ("Latitude") +
-     ggtitle(paste0("Occurence de l'esp?ce", " ", esp)) +
+     ggtitle(paste0("Occurrence")) +
                theme(plot.title = element_text(hjust = 0.5)) +
+     scale_color_manual(values = colors) 
+
+rawmap  <- 
+     ggplot() +
+     geom_sf(data = fr_simpl) +  
+     geom_sf(data = shpEsp10_g, color= alpha("#1D928F",0.6), fill = alpha("#3A9E98", 0.7), size = 0.05) +
+     geom_sf(data = shpEsp5_g, color=alpha("#b5745e", 0.6), fill = alpha("darksalmon",0.7), size = 0.05) +  ##5D0C0D" = border, #E9967A = darksalmon
+     geom_rect(aes(xmin = exttot[1], xmax = exttot[2], ymin = exttot[3], ymax = exttot[4]),
+               color = "red", fill = NA) +   
+     xlab("Longitude") + ylab ("Latitude") +
+     #ggtitle(paste0("Occurrence de l'espece", " ", esp)) +
+        scale_x_continuous(limits = c(exttot[1], exttot[2]))+
+        scale_y_continuous(limits = c(exttot[3], exttot[4]))+
+     theme(plot.title = element_text(hjust = 0.5)) +
      scale_color_manual(values = colors) 
 
 #####################################################################################
@@ -344,7 +338,6 @@ rawmap  <- ggplot() +
     raster10 <- rasterize(centroid_10, raster_templ_10, field = 1)  # no 
     raster5 <- rasterize(centroid_5, raster_templ_5, field = 1)
   
-  
     #************************************************
     # neighboring calculation (voisinage)
     #************************************************
@@ -363,13 +356,10 @@ rawmap  <- ggplot() +
   r_10_focal_m_1 <- (r_10_focal_m)-1
   r_5_focal_m_1 <- (r_5_focal_m)-1
   
-  
     #************************************************
     # Ripley K index
     #************************************************
-  
-  ## buffer
-  ## try changing the buffer dist
+
        
    buff_10 <- st_buffer(shpEsp10, dist = 0) 
    buff_5 <- st_buffer(shpEsp5, dist = 0)   
@@ -407,7 +397,7 @@ EspK5_gg <- ggplot(EspK5, aes(x = r)) +
          geom_line (aes(y= theo, col = "theo"), size = 1.1) +
          geom_line (aes(y= border, col = "border"), size = 1.1) +            
                          scale_color_manual(name = "",
-                         labels = c("K th?orique", "K esp?ce"),
+                         labels = c("K théorique", "K espèce"),
                          values = c("theo" = "darkgray",
                          "border" = "darksalmon")) +
          labs(title = "Indice de Ripley (K)", 
@@ -449,7 +439,7 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
          geom_line (aes(y= theo, col = "theo"), size = 1.1) +
          geom_line (aes(y= border, col = "border"), size = 1.1) +
          scale_color_manual(name = "",
-                         labels = c("K th?orique", "K esp?ce"),
+                         labels = c("K théorique", "K espèce"),
                          values = c("theo" = "darkgray",
                          "border" = "#3A9E98")) +
          labs(title = "", 
@@ -474,9 +464,20 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
   #***********************************************************************************
   #***********************************************************************************
 
-  raster10_tot.3 <- crop(raster10_tot.2, extent(raster10))
-  raster5_tot.3 <- crop(raster5_tot.2, extent(raster5)) 
+  #raster10_tot.3 <- crop(raster10_fr, extent(raster10))
+  #raster5_tot.3 <- crop(raster5_fr, extent(raster5)) 
 
+  if (tpb10km.sp2$ismarine[1] == 'false' & tpb10km.sp2$iscontinental[1] == 'true'){
+  raster10_tot.3 <- crop(raster10_fr, extent(raster10))
+  raster5_tot.3 <- crop(raster5_fr, extent(raster5)) 
+ } else if (tpb10km.sp2$ismarine[1] == 'true' & tpb10km.sp2$iscontinental[1] == 'false'){
+  raster10_tot.3 <- crop(raster10_mar, extent(raster10))
+  raster5_tot.3 <- crop(raster5_mar, extent(raster5))
+ } else if (tpb10km.sp2$ismarine[1] == 'true' & tpb10km.sp2$iscontinental[1] == 'true'){
+  raster10_tot.3 <- crop(raster10_frmar, extent(raster10))
+  raster5_tot.3 <- crop(raster5_frmar, extent(raster5))
+ }
+  
   # reproject to reference data crs
   raster10_pj <- projectRaster(raster10_tot.3, crs = crs(sh10))
   raster5_pj <- projectRaster(raster5_tot.3, crs = crs(sh5))
@@ -508,16 +509,18 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
   
   # calcul de voisinage especes
   
-  NVois_10 <- (r_10_focal_tot_m_esp@nrows)*(r_10_focal_tot_m_esp@ncols) # quantit? de mailles 10x10
-  NVois_5 <- (r_5_focal_tot_m_esp@nrows)*(r_5_focal_tot_m_esp@ncols) # quantit? de mailles 5x5 
+  NVois_10 <- (r_10_focal_tot_m_esp@nrows)*(r_10_focal_tot_m_esp@ncols) # quantité de mailles 10x10
+  NVois_5 <- (r_5_focal_tot_m_esp@nrows)*(r_5_focal_tot_m_esp@ncols) # quantité de mailles 5x5 
   
   # calcul de nombre de voisines NVois
   
   NVois_10.a <- count(values(r_10_focal_tot_m_esp >=1))
-  NVois_10  <- NVois_10.a[1,2]
+  NVois_10.b <- NVois_10.a[NVois_10.a$x=="TRUE",] 
+  NVois_10  <- NVois_10.b[1,2]
   
   NVois_5.a <- count(values(r_5_focal_tot_m_esp >=1))
-  NVois_5  <- NVois_5.a[1,2]
+  NVois_5.b <- NVois_5.a[NVois_5.a$x=="TRUE",] 
+  NVois_5  <- NVois_5.b[1,2]
   
   #********
   # 2] taux moyen de voisinage de l'espece 
@@ -526,14 +529,16 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
   # n = NVois_10
   #********
  
-  
-  #************************************************
+    #************************************************
   # Average neighboring rate 
   #************************************************
   
   TVois_10 <- r_10_focal_m_1/r_10_focal_tot_m_esp
   TVois_5 <- r_5_focal_m_1/r_5_focal_tot_m_esp
   
+  TVois_5[!is.finite(TVois_5)] <- NA   ############ NEW
+  TVois_10[!is.finite(TVois_10)] <- NA ############ NEW
+
   TVoisEsp_10 <- (cellStats(TVois_10, sum))/NVois_10
   TVoisEsp_5 <- (cellStats(TVois_5, sum))/NVois_5
   
@@ -590,6 +595,31 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
   surf_frag5_moy <- mean(Frag5@data$Surface) 
   surf_frag10_moy <- mean(Frag10@data$Surface) 
   
+  #############################################
+  # nombre de mailles 10x10 vides par espece 
+  #############################################
+  
+  esp_maille_ref[[esp]] <- subset(esp_maille[[esp]], select = c("id_maille_10","id_maille_5","occurrence_10","occurrence_5","Regroupement.x"))
+  colnames(esp_maille_ref[[esp]]) <- c("id_maille_10","id_maille_5", "occurrence_10", "occurrence_5","group")
+  esp_maille_ref[[esp]]$id_maille_10_sp <- esp_maille_ref[[esp]]$id_maille_10
+  esp_maille_ref[[esp]]$id_maille_5_sp <- esp_maille_ref[[esp]]$id_maille_5
+  esp_maille_ref[[esp]] <- unique(esp_maille_ref[[esp]])
+  # join the full list of combinations with all the species
+  comb_esp[[esp]] <- left_join(comb_maille_10_5, esp_maille_ref[[esp]], by = c("id_maille_10","id_maille_5"))
+  comb_esp[[esp]] <- subset(comb_esp[[esp]], select = c("id_maille_10","id_maille_5","occurrence_10.y","occurrence_5.y", "group"))
+  colnames(comb_esp[[esp]]) <- c("id_maille_10","id_maille_5","occurrence_10.y","occurrence_5.y", paste(esp))
+  # count cells
+  tmp  <- filter(comb_esp[[esp]], occurrence_10.y == "True" & is.na(occurrence_5.y))
+  #tmp2 <- left_join(tmp, comb_esp[[esp]], by = "id_maille_10")
+  tmp_true  <- filter(comb_esp[[esp]], occurrence_10.y == "True" & occurrence_5.y == "True")
+  list10 <- unique(tmp_true$id_maille_10)
+  vides <- nrow(tmp)
+  remplies <- sum(tmp$id_maille_10 %in% list10)
+  maille_10_vides[[esp]]  <- vides - remplies
+  
+  cel_esp_tot1  <- filter(comb_esp[[esp]], occurrence_10.y == "True" | occurrence_5.y == "True")
+  cel_esp_tot <- n_distinct(cel_esp_tot1$id_maille_10)
+  
   ### **********
   ### Adding results
   ### **********
@@ -602,6 +632,7 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
   values.spl10[[esp]]$area_int <- area_int.g10_c5
   values.spl10[[esp]]$vois_10km <- round(vois_10km,2)   
   values.spl10[[esp]]$frag_div_int <- round(divInt,2) 
+  values.spl10[[esp]]$'vid/remp' <- round((maille_10_vides[[esp]]/cel_esp_tot),2) 
   values.spl10[[esp]]$frag_div_10 <- round(div10,2)  
   values.spl10[[esp]]$dist_frag10_moy <- round(dist_frag10_moy,2)   
   values.spl10[[esp]]$surf_frag10_moy <- round(surf_frag10_moy,2)   
@@ -610,11 +641,19 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
   values.spl10[[esp]] <- left_join(values.spl10[[esp]], listref.p, by = "cd_ref")  
   values.spl10[[esp]] <- left_join(values.spl10[[esp]], listconn, by = "cd_ref")
     
-  values.spl10[[esp]] <- subset(values.spl10[[esp]], select =  c("LB_NOM_VALIDE","GROUP2_INPN.x","Regroupement","cd_ref","Indicateurs","dens_rempl","area_int","frag_div_int","maille","area_10",
+  values.spl10[[esp]] <- subset(values.spl10[[esp]], select =  c("LB_NOM_VALIDE","GROUP2_INPN.x","Regroupement","cd_ref","Indicateurs","dens_rempl","area_int","frag_div_int",
+                                                                 #"mailles_10_tot",
+                                                                 #"mailles_10_vid",
+                                                                 "vid/remp",
+                                                                 "maille","area_10",
                                                                  "vois_10km","TVoisEsp_10","frag_div_10","surf_frag10_moy",
                                                                  "dist_frag10_moy"))
                               
-  colnames(values.spl10[[esp]]) <- c("nom_valide","group_2_INPN","regroupement","cd_ref","connaissance","dens_rempl","area_int","frag_div_int","maille","area",
+  colnames(values.spl10[[esp]]) <- c("nom_valide","group_2_INPN","regroupement","cd_ref","connaissance","dens_rempl","area_int","frag_div_int",
+                                                                 #"mailles_10_tot",
+                                                                 #"mailles_10_vid",
+                                                                 "vid/remp",
+                                                                 "maille","area",
                                                                  "vois","TVoisEsp","frag_div","surf_frag_moy",
                                                                  "dist_frag_moy")
   
@@ -626,6 +665,7 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
   values.spl5[[esp]]$area_int <- area_int.g10_c5
   values.spl5[[esp]]$vois_5km <- round(vois_5km,2)
   values.spl5[[esp]]$frag_div_int <- round(divInt,2)
+  values.spl5[[esp]]$'vid/remp' <- round((maille_10_vides[[esp]]/cel_esp_tot),2) 
   values.spl5[[esp]]$frag_div_5 <- round(div5,2)
   values.spl5[[esp]]$dist_frag5_moy <- round(dist_frag5_moy,2) 
   values.spl5[[esp]]$surf_frag5_moy <- round(surf_frag5_moy,2)     
@@ -634,10 +674,18 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
   values.spl5[[esp]] <- left_join(values.spl5[[esp]], listref.p, by = "cd_ref")  
   values.spl5[[esp]] <- left_join(values.spl5[[esp]], listconn, by = "cd_ref")
     
-  values.spl5[[esp]] <- subset(values.spl5[[esp]], select =  c("LB_NOM_VALIDE","GROUP2_INPN.x","Regroupement","cd_ref","Indicateurs","dens_rempl","area_int","frag_div_int","maille","area_5",
+  values.spl5[[esp]] <- subset(values.spl5[[esp]], select =  c("LB_NOM_VALIDE","GROUP2_INPN.x","Regroupement","cd_ref","Indicateurs","dens_rempl","area_int","frag_div_int",
+                                                                 #"mailles_10_tot",
+                                                                 #"mailles_10_vid",
+                                                                 "vid/remp",
+                                                                 "maille","area_5",
                                                                  "vois_5km","TVoisEsp_5","frag_div_5","surf_frag5_moy",
                                                                  "dist_frag5_moy"))
-  colnames(values.spl5[[esp]]) <- c("nom_valide","group_2_INPN","regroupement","cd_ref","connaissance","dens_rempl","area_int","frag_div_int","maille","area",
+  colnames(values.spl5[[esp]]) <- c("nom_valide","group_2_INPN","regroupement","cd_ref","connaissance","dens_rempl","area_int","frag_div_int",
+                                                                 #"mailles_10_tot",
+                                                                 #"mailles_10_vid",
+                                                                 "vid/remp",
+                                                                 "maille","area",
                                                                  "vois","TVoisEsp","frag_div","surf_frag_moy",
                                                                  "dist_frag_moy")
   
@@ -651,41 +699,37 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
      
   # setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Graphics from R/test2")
   
-    gl <- list(rawmap, EspK5_gg, EspK10_gg)
-    
-  graph[[esp]] <-  grid.arrange(
-    grobs = gl, 
-    widths = c(1,1),
-    heights = c(1,1),
-    layout_matrix = rbind(c(1, 2),c(1, 3))
-     )
+gl4<-list(rawmap1, rawmap, EspK5_gg, EspK10_gg)
+gl3<-list(rawmap1, EspK5_gg, EspK10_gg)
+
+  # this condition put just one map if the species is spread accross FR and two graphics if their distribution is small  
+
+if (((exttot[2]-exttot[1]) > 400000) & ((exttot[4] - exttot[3]) > 400000)) {
+  graph[[esp]]<-grid.arrange(grobs = gl3, widths = c(1,1),
+                             heights = c(1,1),
+                             layout_matrix = rbind(c(1, 2),c(1, 3))) 
+    } else {
+  graph[[esp]]<-grid.arrange(grobs = gl4, widths = c(1,1),
+                               heights = c(1,1),
+                               layout_matrix = rbind(c(1, 3),c(2, 4)))
+    }
 
   }
  
-## Put all values in one table  
-
-#setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/species_summary_exports")
+## If you want to export a table with all the data 
 
 values.total <- ldply(values.spl)
 values.total <- arrange(values.total, .id)
-
 # save results
+#save(graph, file = "graph8.RData" )
+#save(values.spl, file = "values.spl8.RData")
 
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Graphics from R")
+#write.csv(values.total, file = "values.total14.csv", row.names = FALSE)
 
-save(graph, file = "graph.RData" )
-#save(values.spl, file = "values.spl.RData")
-
-#write.csv(values.total, file = "values.total.csv", row.names = FALSE)
-
-# load results
-#setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Graphics from R")
-#load("values.spl.RData")
-
-
-
-
-
+#*******************************************************************************
+#* Objects graph and values.spl will be used in next script to export the graphics
+#* and results to a Word document
+#*******************************************************************************
 
 
 
