@@ -134,8 +134,9 @@ sh10 <- st_read("Grid_ETRS89_LAEA_10K_FR.shp")
 # Couche France/LAEA 5km
 sh5 <- st_read("la5x5fr.shp")
 # couche France departements
-fr <- st_read("copie_loc_depts.shp")
-fr_simpl <- st_simplify(fr, preserveTopology = FALSE, dTolerance = 1000) # to make graph faster
+#fr <- st_read("copie_loc_depts.shp")
+#fr_simpl <- st_simplify(fr, preserveTopology = FALSE, dTolerance = 1000) # to make graph faster
+fr_simpl <- st_read("fr_simpl.shp")
 
 #******************************************************
 #* raster maille France sans aire marine
