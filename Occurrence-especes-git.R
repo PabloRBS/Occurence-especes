@@ -111,14 +111,17 @@ tpb5km.sp.cf <-  filter(tpb5km.sp.c, !is.na(id_observation))
 #save(tpb10km.sp.cf, file = "tpb10km.sp.cf2.RData")
 
 
-#******************************************************
-#************************START*************************
-#******************************************************
-# START FROM HERE, LOADING THE DATA ALREADY PREPARED
 
+#**********************************************************************************************
+#
+#                  START FROM HERE, LOADING THE DATA ALREADY PREPARED
+#
+#***********************************************************************************************
 
-# Data from database
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Data mailles")
+# Loading data already prepared with the last script
+
+# change with your folder location
+# setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Data mailles")
 
 load("tpb5km.sp.cf2.RData")
 load("tpb10km.sp.cf2.RData")
@@ -128,7 +131,10 @@ load("listref.p.RData")
 # list of connaisance
 load("listconn.RData")
 
-# MAILLES
+#*******************************************************
+# Shape files of grids and departments of France
+#*******************************************************
+
 # Import France/LAEA grids 10km and 5km 
 sh10 <- st_read("Grid_ETRS89_LAEA_10K_FR.shp")
 # Couche France/LAEA 5km
@@ -139,7 +145,7 @@ sh5 <- st_read("la5x5fr.shp")
 fr_simpl <- st_read("fr_simpl.shp")
 
 #******************************************************
-#* raster maille France sans aire marine
+#* Rasters maille France sans aire marine
 #******************************************************
 
 raster10_tot.1 <- readGDAL("salida10tif.tif")
@@ -545,8 +551,8 @@ EspK10_gg    <- ggplot(EspK10, aes(x = r)) +
   TVois_10 <- r_10_focal_m_1/r_10_focal_tot_m_esp
   TVois_5 <- r_5_focal_m_1/r_5_focal_tot_m_esp
   
-  TVois_5[!is.finite(TVois_5)] <- NA   ############ NEW
-  TVois_10[!is.finite(TVois_10)] <- NA ############ NEW
+  TVois_5[!is.finite(TVois_5)] <- NA    # to avoid errors due to INF values
+  TVois_10[!is.finite(TVois_10)] <- NA 
 
   TVoisEsp_10 <- (cellStats(TVois_10, sum))/NVois_10
   TVoisEsp_5 <- (cellStats(TVois_5, sum))/NVois_5
