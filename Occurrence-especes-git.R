@@ -21,7 +21,12 @@ library("ggplotify") # convert plots to ggplot objects
 #*******************************************************************************
 #*******************************************************************************
 ################################################################################
-# DATA EDITION FROM DATABASE EXPORT
+#
+#  Step 1:           DATA PREPARATION FROM DATABASE EXPORT
+#
+#  Note: if you have already the data prepared it is recomended to start from the 
+#        next part of the script
+#
 ################################################################################
 
 username  <- rstudioapi::askForPassword(prompt = "username")  #ums_p..s (change with your credentials)
@@ -84,7 +89,7 @@ colnames(listref.p) <- c("Code_N2000","Prio","Nom.cité.dans.la.Directive","cd_n
                          "ALP","ATL","CONT","MED","Nom_cite","A1","CDUE_2019","cd_ref","LB_NOM_VALIDE",
                          "GROUP2_INPN","EVAL")
 # save list
-#save(listref.p, file = "listref.p.RData" )
+# save(listref.p, file = "listref.p.RData" )
 
 ################################################################################
 # list of species with knowledge indicator
@@ -114,7 +119,7 @@ tpb5km.sp.cf <-  filter(tpb5km.sp.c, !is.na(id_observation))
 
 #**********************************************************************************************
 #
-#                    START FROM HERE, LOADING THE DATA ALREADY PREPARED
+# Step 2:             START FROM HERE, LOADING THE DATA ALREADY PREPARED
 #
 # Note: it is recomended to prepare the data before, and then upload it in a new R sesion.
 #       Preparing the data requires a high amount of RAM, then the second part of the script
@@ -135,9 +140,14 @@ load("listref.p.RData")
 # list of connaisance
 load("listconn.RData")
 
-#*******************************************************
-# Shape files of grids and departments of France
-#*******************************************************
+#************************************************************************************************
+#
+# Step 3:              Loading of shapefiles and rasters             
+#
+#
+#*************************************************************************************************
+
+#  Shape files of grids and departments of France
 
 # Import France/LAEA grids 10km and 5km 
 sh10 <- st_read("Grid_ETRS89_LAEA_10K_FR.shp")
@@ -201,6 +211,12 @@ comb_maille_10_5 <- arrange(t.sb, id_maille_10, id_maille_5)
 # 1.2 prepare species tables in separated lists
 t105.sb.1 <- left_join(t10.sb, t5.sb,  by = c("id_evenement","cd_ref"))
 t105.sb.1 <- subset(t105.sb.1, select = c("id_maille_10","id_maille_5","cd_ref","Regroupement.x","occurrence_10","occurrence_5"))
+
+#*********************************************************************************
+#
+#       OBJECT PREPARATION FOR THE LOOP
+#
+#*********************************************************************************
 
 # lists
 esp_maille <- split(t105.sb.1, f = t105.sb.1$cd_ref)   
