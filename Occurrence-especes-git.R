@@ -24,17 +24,25 @@ library("ggplotify") # convert plots to ggplot objects
 # DATA EDITION FROM DATABASE EXPORT
 ################################################################################
 
+username  <- rstudioapi::askForPassword(prompt = "username")  #ums_p..s (change with your credentials)
+password  <- rstudioapi::askForPassword(prompt = "password*") #S...1*   (change with your credentials)
+conex <- dbConnect(dbDriver("Postgres"), dbname = "db_NAME", host = "data-gest-prod.patnat.mnhn.fr", port = XXX, user = username, password = password)
 
-setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Data mailles")
+options(scipen = 50)
 
+# import of the list from database
 
+tpb10km.v4 <-as.data.table(dbGetQuery(conex, "select * FROM temp_doe.tpb_10km_v3")) # this takes some minutes
+tpb5km.v4 <-as.data.table(dbGetQuery(conex, "select * FROM temp_doe.tpb_5km_v3")) 
+
+# if you already have the data located in your computer
+# change to your current folder
+#setwd("C:/Users/pbolanos01/Dropbox/ETC-BD MNHN/2022/Patrinat/Data mailles")
 # this is the original data from the database
-
 # [temp_doe].[tpb_5km_v3]
 # [temp_doe].[tpb_10km_v3]
-
-tpb10km.v4 <- read.csv("./Original data/tpb_10km_v3_202211301400.csv") 
-tpb5km.v4  <- read.csv("./Original data/tpb_5km_v3_202211301427.csv")
+#tpb10km.v4 <- read.csv("./Original data/tpb_10km_v3_202211301400.csv") 
+#tpb5km.v4  <- read.csv("./Original data/tpb_5km_v3_202211301427.csv")
 
 # select useful columns
 
