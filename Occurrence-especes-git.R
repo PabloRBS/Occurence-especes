@@ -114,7 +114,11 @@ tpb5km.sp.cf <-  filter(tpb5km.sp.c, !is.na(id_observation))
 
 #**********************************************************************************************
 #
-#                  START FROM HERE, LOADING THE DATA ALREADY PREPARED
+#                    START FROM HERE, LOADING THE DATA ALREADY PREPARED
+#
+# Note: it is recomended to prepare the data before, and then upload it in a new R sesion.
+#       Preparing the data requires a high amount of RAM, then the second part of the script
+#       requires as well a heavy load of memory).
 #
 #***********************************************************************************************
 
