@@ -55,11 +55,11 @@ Données de synthèse retirées
 ## Exemple de résultats de l'analyse
 
 
-![alt text](https://github.com/PabloRBS/Occurrence-especes/blob/main/occurrence_fr2.png?raw=true)
+![alt text](https://github.com/PabloRBS/Occurrence-especes/blob/main/images_readme/occurrence_fr2.png?raw=true)
 
 **Résultats des métriques pour chaque maille**
 
-![alt text](https://github.com/PabloRBS/Occurrence-especes/blob/main/Alectoris_graeca_2971_resultats_mailles2.png?raw=true)
+![alt text](https://github.com/PabloRBS/Occurrence-especes/blob/main/images_readme/Alectoris_graeca_2971_resultats_mailles2.png?raw=true)
 
 
 
