@@ -1,3 +1,4 @@
+
 # Échelle de rapportage, données d'observation d'especes sur les Directives Nature
 
 ---
@@ -8,7 +9,21 @@ Analyste CTE/BD: Pablo Bolaños, travail en collaboration avec Patrinat, Muséum
 date: '2022-10-13'
 ---
 
-<br />
+
+## This repository contains two scripts in R language:
+
+## 1. _EvalDonneesPrecises_12_PBolanos_20221206.R
+
+This script uses two views created in the database, due to its weight it is necessary the direct import or have access to the original CSV files.
+
+The objective of this script is to make a complete analysis of the data, calculating several metrics to compare the two grids of occurrence of species in Europe,
+one at 10x10 km and the other at 5x5 km, the result are two objects one is a list with the maps and graphics of each species, and the other is a list with the results.
+
+The resulting objects are used in the next script.
+
+## 2. _EvalDonneesPrecises_12_PBolanos_word_export_20221207.R
+
+This script uses the objects obtained in the first script and exports a large Word document (299 pages) of one page for each species, with formatting.
 
 ## Contexte 
 
