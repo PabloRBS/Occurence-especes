@@ -17,7 +17,7 @@ date: '2022-10-13'
 This script uses two views created in the database, due to its weight it is necessary the direct import or have access to the original CSV files.
 
 The objective of this script is to make a complete analysis of the data, calculating several metrics to compare the two grids of occurrence of species in Europe,
-one at 10x10 km and the other at 5x5 km, the result are two objects one is a list with the maps and graphics of each species, and the other is a list with the results.
+one at 10x10 km and the other at 5x5 km, the result are two objects, one is a list with the maps and graphics of each species and the other is a list with the results.
 
 The resulting objects are used in the next script.
 
